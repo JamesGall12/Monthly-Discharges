@@ -349,6 +349,11 @@
                 📊 Data loaded from Google Sheets • Last updated: <span id="lastUpdated"></span>
             </div>
             
+            <div id="debugInfo" class="data-source" style="background: rgba(245, 158, 11, 0.1); border-color: #f59e0b; color: #fbbf24; margin-bottom: 20px;">
+                🔍 <strong>Debug Console:</strong><br>
+                <div id="debugLog" style="font-family: monospace; font-size: 0.8rem; max-height: 200px; overflow-y: auto; margin-top: 10px; white-space: pre-wrap;"></div>
+            </div>
+            
             <div id="alertSection" class="alert-section" style="display: none;">
                 <h3>🚨 High-Risk Practitioners Alert</h3>
                 <div id="alertContent"></div>
@@ -448,27 +453,50 @@
         const DISCHARGE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9oDIgQ5APmcCORpmydY4Kxuwd2RPyLEG41QggNecWvPM_xbHBEcp14Pwj9lxkn9OxryuMq5SUFbsd/pub?gid=42669759&single=true&output=csv';
         
         let charts = {};
+        let debugMessages = [];
+
+        // Debug logging function that shows on page
+        function debugLog(message) {
+            debugMessages.push(`${new Date().toLocaleTimeString()}: ${message}`);
+            console.log(message);
+            
+            const debugElement = document.getElementById('debugLog');
+            if (debugElement) {
+                debugElement.textContent = debugMessages.slice(-20).join('\n'); // Show last 20 messages
+                debugElement.scrollTop = debugElement.scrollHeight;
+            }
+        }
 
         // Fetch discharge data from Google Sheets
         async function fetchDischargeData() {
             try {
-                console.log('Fetching discharge data from Google Sheets...');
+                debugLog('=== Starting data fetch ===');
+                debugLog('CSV URL: ' + DISCHARGE_CSV_URL.substring(0, 50) + '...');
                 
                 // Try direct fetch first
                 try {
+                    debugLog('Trying direct fetch...');
                     const directResponse = await fetch(DISCHARGE_CSV_URL);
+                    debugLog('Direct response status: ' + directResponse.status);
+                    
                     if (directResponse.ok) {
                         const csvText = await directResponse.text();
-                        console.log('Direct CSV fetch successful');
+                        debugLog('Direct CSV fetch successful, length: ' + csvText.length);
+                        debugLog('First 100 chars: ' + csvText.substring(0, 100));
                         return parseDischargeCSV(csvText);
+                    } else {
+                        debugLog('Direct fetch failed with status: ' + directResponse.status);
                     }
                 } catch (directError) {
-                    console.log('Direct fetch failed, trying CORS proxy...');
+                    debugLog('Direct fetch error: ' + directError.message);
                 }
                 
                 // Use CORS proxy as fallback
+                debugLog('Trying CORS proxy...');
                 const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(DISCHARGE_CSV_URL)}`;
+                
                 const response = await fetch(proxyUrl);
+                debugLog('Proxy response status: ' + response.status);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -477,53 +505,115 @@
                 const data = await response.json();
                 const csvText = data.contents;
                 
-                console.log('Proxy CSV fetch successful');
+                debugLog('Proxy CSV fetch successful, length: ' + csvText.length);
+                debugLog('First 100 chars: ' + csvText.substring(0, 100));
                 return parseDischargeCSV(csvText);
                 
             } catch (error) {
-                console.error('Error fetching discharge data:', error);
-                // Return fallback data for demo
+                debugLog('=== ERROR: All fetch methods failed ===');
+                debugLog('Error details: ' + error.message);
+                
+                // Show error to user
+                document.getElementById('dataSource').innerHTML = `
+                    ⚠️ <strong>Data Connection Failed</strong><br>
+                    Error: ${error.message}<br>
+                    Using demo data for testing. Check debug console above.
+                `;
+                document.getElementById('dataSource').style.background = 'rgba(239, 68, 68, 0.1)';
+                document.getElementById('dataSource').style.borderColor = '#ef4444';
+                document.getElementById('dataSource').style.color = '#fca5a5';
+                
+                // Return demo data with realistic names for medicinal cannabis clinic
+                debugLog('Using fallback demo data');
                 return [
-                    { name: 'Dr. Smith', patientDischarge: 12.5, practitionerDischarge: 8.2, overallDischarge: 20.7 },
-                    { name: 'Dr. Johnson', patientDischarge: 18.3, practitionerDischarge: 5.1, overallDischarge: 23.4 },
-                    { name: 'Dr. Williams', patientDischarge: 9.7, practitionerDischarge: 12.8, overallDischarge: 22.5 },
-                    { name: 'Dr. Brown', patientDischarge: 15.2, practitionerDischarge: 7.3, overallDischarge: 22.5 },
-                    { name: 'Dr. Davis', patientDischarge: 6.8, practitionerDischarge: 4.2, overallDischarge: 11.0 }
+                    { name: 'Dr. Sarah Mitchell', patientDischarge: 12.5, practitionerDischarge: 8.2, overallDischarge: 20.7 },
+                    { name: 'Dr. James Wilson', patientDischarge: 18.3, practitionerDischarge: 5.1, overallDischarge: 23.4 },
+                    { name: 'Dr. Emily Chen', patientDischarge: 9.7, practitionerDischarge: 12.8, overallDischarge: 22.5 },
+                    { name: 'Dr. Michael Brown', patientDischarge: 15.2, practitionerDischarge: 7.3, overallDischarge: 22.5 },
+                    { name: 'Dr. Lisa Davis', patientDischarge: 6.8, practitionerDischarge: 4.2, overallDischarge: 11.0 },
+                    { name: 'Dr. Robert Taylor', patientDischarge: 21.1, practitionerDischarge: 3.9, overallDischarge: 25.0 },
+                    { name: 'Dr. Amanda White', patientDischarge: 4.2, practitionerDischarge: 6.1, overallDischarge: 10.3 }
                 ];
             }
         }
 
         // Parse CSV data for discharge information
         function parseDischargeCSV(csvText) {
-            console.log('Parsing discharge CSV data...');
+            debugLog('=== Starting CSV Parse ===');
+            debugLog('Raw CSV length: ' + csvText.length);
+            debugLog('First 300 characters: ' + csvText.substring(0, 300));
+            
             const lines = csvText.trim().split('\n');
+            debugLog('Total lines found: ' + lines.length);
+            
+            // Show first few lines for debugging
+            debugLog('=== First 5 lines ===');
+            for (let i = 0; i < Math.min(5, lines.length); i++) {
+                debugLog(`Line ${i}: ${lines[i]}`);
+            }
+            
             const practitioners = [];
             
-            // Skip to row 2 for headers, then process rows 3-18 for data
+            // Process rows 3-18 for data (array indices 2-17)
+            debugLog('=== Processing data rows (3-18) ===');
             for (let i = 2; i < Math.min(18, lines.length); i++) {
                 const line = lines[i];
-                if (!line || line.trim() === '') continue;
+                debugLog(`Processing line ${i + 1}: ${line.substring(0, 100)}...`);
                 
-                // Split by comma and clean quotes
-                const columns = line.split(',').map(col => col.replace(/"/g, '').trim());
+                if (!line || line.trim() === '') {
+                    debugLog(`Line ${i + 1} is empty, skipping`);
+                    continue;
+                }
+                
+                // Split by comma but handle quoted commas
+                const columns = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let j = 0; j < line.length; j++) {
+                    const char = line[j];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        columns.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                columns.push(current.trim()); // Add the last column
+                
+                debugLog(`Line ${i + 1} split into ${columns.length} columns`);
                 
                 // Extract columns H, J, L, N (indices 7, 9, 11, 13)
-                const name = columns[7]; // Column H
-                const patientDischarge = parseFloat(columns[9]) || 0; // Column J
-                const practitionerDischarge = parseFloat(columns[11]) || 0; // Column L
-                const overallDischarge = parseFloat(columns[13]) || 0; // Column N
+                const name = columns[7] ? columns[7].replace(/"/g, '').trim() : '';
+                const patientDischargeRaw = columns[9] ? columns[9].replace(/"/g, '').trim() : '';
+                const practitionerDischargeRaw = columns[11] ? columns[11].replace(/"/g, '').trim() : '';
+                const overallDischargeRaw = columns[13] ? columns[13].replace(/"/g, '').trim() : '';
                 
-                if (name && name !== '' && !name.toLowerCase().includes('total')) {
-                    practitioners.push({
+                debugLog(`Extracted: Name="${name}", Patient="${patientDischargeRaw}", Practitioner="${practitionerDischargeRaw}", Overall="${overallDischargeRaw}"`);
+                
+                const patientDischarge = parseFloat(patientDischargeRaw) || 0;
+                const practitionerDischarge = parseFloat(practitionerDischargeRaw) || 0;
+                const overallDischarge = parseFloat(overallDischargeRaw) || 0;
+                
+                if (name && name !== '' && !name.toLowerCase().includes('total') && !name.toLowerCase().includes('practitioner name')) {
+                    const practitioner = {
                         name: name,
                         patientDischarge: patientDischarge,
                         practitionerDischarge: practitionerDischarge,
                         overallDischarge: overallDischarge
-                    });
+                    };
+                    practitioners.push(practitioner);
+                    debugLog(`Added practitioner: ${name} - Patient:${patientDischarge}% Practitioner:${practitionerDischarge}% Overall:${overallDischarge}%`);
+                } else {
+                    debugLog(`Skipped line ${i + 1}: name="${name}" (empty or header/total)`);
                 }
             }
             
-            console.log('Parsed practitioners:', practitioners);
+            debugLog('=== Final Result ===');
+            debugLog('Total practitioners found: ' + practitioners.length);
+            
             return practitioners;
         }
 
