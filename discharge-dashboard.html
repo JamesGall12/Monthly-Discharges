@@ -3,867 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Greencare Discharge Analytics - June 2025</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <title>Test Dashboard</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #1e293b;
             color: white;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .header h1 {
-            font-size: 3rem;
-            color: #f1f5f9;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .header p {
-            color: #cbd5e1;
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-        }
-        
-        .header .date {
-            color: #94a3b8;
-            font-size: 1rem;
-        }
-        
-        .data-source {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid #3b82f6;
-            color: #93c5fd;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-        
-        .metric-card {
-            background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            border: 1px solid #475569;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .metric-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
-        }
-        
-        .metric-card.warning::before {
-            background: linear-gradient(90deg, #ef4444, #dc2626);
-        }
-        
-        .metric-card.good::before {
-            background: linear-gradient(90deg, #10b981, #059669);
-        }
-        
-        .metric-title {
-            color: #cbd5e1;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 15px;
-        }
-        
-        .metric-value {
-            font-size: 2.8rem;
-            font-weight: 700;
-            color: #f1f5f9;
-            margin-bottom: 10px;
-        }
-        
-        .metric-subtitle {
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-        
-        .risk-indicator {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            margin-top: 10px;
-        }
-        
-        .risk-high {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid #ef4444;
-        }
-        
-        .risk-medium {
-            background: rgba(245, 158, 11, 0.2);
-            color: #f59e0b;
-            border: 1px solid #f59e0b;
-        }
-        
-        .risk-low {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-            border: 1px solid #10b981;
-        }
-        
-        .chart-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-        
-        .chart-container {
-            background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            border: 1px solid #475569;
-        }
-        
-        .chart-title {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #f1f5f9;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-        
-        .chart-canvas {
-            position: relative;
-            height: 400px;
-        }
-        
-        .practitioners-table {
-            background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
-            border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            overflow: hidden;
-            border: 1px solid #475569;
-        }
-        
-        .table-header {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            padding: 30px;
-            color: white;
-        }
-        
-        .table-header h2 {
-            font-size: 1.6rem;
-            margin-bottom: 8px;
-        }
-        
-        .table-header p {
-            color: #fecaca;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 18px 25px;
-            text-align: left;
-            border-bottom: 1px solid #475569;
-        }
-        
-        th {
-            background: #2d3748;
-            font-weight: 600;
-            color: #e2e8f0;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.5px;
-        }
-        
-        td {
-            color: #cbd5e1;
-        }
-        
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.8rem;
-        }
-        
-        .status-critical {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid #ef4444;
-        }
-        
-        .status-warning {
-            background: rgba(245, 158, 11, 0.2);
-            color: #f59e0b;
-            border: 1px solid #f59e0b;
-        }
-        
-        .status-good {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-            border: 1px solid #10b981;
-        }
-        
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 50vh;
-            flex-direction: column;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #475569;
-            border-top: 4px solid #ef4444;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .alert-section {
-            background: linear-gradient(145deg, #7f1d1d 0%, #991b1b 100%);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid #dc2626;
-        }
-        
-        .alert-section h3 {
-            color: #fecaca;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-        
-        .alert-item {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border-left: 4px solid #ef4444;
-        }
-        
-        .alert-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .update-info {
-            background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
-            border-radius: 15px;
             padding: 20px;
-            margin-top: 30px;
-            border: 1px solid #475569;
         }
-        
-        .update-info h3 {
-            color: #f1f5f9;
-            margin-bottom: 10px;
+        .test-box {
+            background: #3b82f6;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
         }
-        
-        .update-info p {
-            color: #cbd5e1;
-            font-size: 0.9rem;
-        }
-        
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2.2rem;
-            }
-            
-            .metrics-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .chart-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .chart-canvas {
-                height: 300px;
-            }
+        .debug-box {
+            background: #f59e0b;
+            color: #000;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>⚠️ Greencare Discharge Analytics</h1>
-            <p>Patient & Practitioner Discharge Monitoring</p>
-            <p class="date">June 2025 • Risk Assessment Dashboard</p>
-        </div>
-        
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <div style="color: #cbd5e1;">Loading discharge data from Google Sheets...</div>
-        </div>
-        
-        <div id="dashboard" style="display: none;">
-            <div id="dataSource" class="data-source">
-                📊 Data loaded from Google Sheets • Last updated: <span id="lastUpdated"></span>
-            </div>
-            
-            <div id="debugInfo" class="data-source" style="background: rgba(245, 158, 11, 0.1); border-color: #f59e0b; color: #fbbf24; margin-bottom: 20px;">
-                🔍 <strong>Debug Console:</strong><br>
-                <div id="debugLog" style="font-family: monospace; font-size: 0.8rem; max-height: 200px; overflow-y: auto; margin-top: 10px; white-space: pre-wrap;"></div>
-            </div>
-            
-            <div id="alertSection" class="alert-section" style="display: none;">
-                <h3>🚨 High-Risk Practitioners Alert</h3>
-                <div id="alertContent"></div>
-            </div>
-            
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-title">Total Practitioners</div>
-                    <div class="metric-value" id="totalPractitioners">0</div>
-                    <div class="metric-subtitle">Active practitioners tracked</div>
-                </div>
-                
-                <div class="metric-card">
-                    <div class="metric-title">Avg Patient Discharge Rate</div>
-                    <div class="metric-value" id="avgPatientDischarge">0%</div>
-                    <div class="metric-subtitle">Patient-initiated discharges</div>
-                    <div class="risk-indicator" id="patientRiskIndicator"></div>
-                </div>
-                
-                <div class="metric-card">
-                    <div class="metric-title">Avg Practitioner Discharge Rate</div>
-                    <div class="metric-value" id="avgPractitionerDischarge">0%</div>
-                    <div class="metric-subtitle">Practitioner-initiated discharges</div>
-                    <div class="risk-indicator" id="practitionerRiskIndicator"></div>
-                </div>
-                
-                <div class="metric-card">
-                    <div class="metric-title">Overall Discharge Rate</div>
-                    <div class="metric-value" id="overallDischarge">0%</div>
-                    <div class="metric-subtitle">Combined discharge rate</div>
-                    <div class="risk-indicator" id="overallRiskIndicator"></div>
-                </div>
-                
-                <div class="metric-card">
-                    <div class="metric-title">Highest Risk Practitioner</div>
-                    <div class="metric-value" id="highestRiskName">-</div>
-                    <div class="metric-subtitle" id="highestRiskRate">Patient discharge rate</div>
-                    <div class="risk-indicator risk-high" id="highestRiskIndicator">Critical</div>
-                </div>
-                
-                <div class="metric-card">
-                    <div class="metric-title">Best Performer</div>
-                    <div class="metric-value" id="bestPerformerName">-</div>
-                    <div class="metric-subtitle" id="bestPerformerRate">Lowest overall rate</div>
-                    <div class="risk-indicator risk-low">Excellent</div>
-                </div>
-            </div>
-            
-            <div class="chart-grid">
-                <div class="chart-container">
-                    <div class="chart-title">📊 Discharge Rates by Practitioner</div>
-                    <div class="chart-canvas">
-                        <canvas id="dischargeChart"></canvas>
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <div class="chart-title">🎯 Discharge Type Distribution</div>
-                    <div class="chart-canvas">
-                        <canvas id="distributionChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="practitioners-table">
-                <div class="table-header">
-                    <h2>⚠️ Detailed Practitioner Analysis</h2>
-                    <p>Individual discharge rates and risk assessment</p>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Practitioner</th>
-                            <th>Patient Discharge %</th>
-                            <th>Practitioner Discharge %</th>
-                            <th>Overall Discharge %</th>
-                            <th>Risk Level</th>
-                            <th>Action Required</th>
-                        </tr>
-                    </thead>
-                    <tbody id="practitionersTable">
-                        <!-- Data will be populated here -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="update-info">
-                <h3>🔄 Auto-Update System</h3>
-                <p><strong>How it works:</strong> This dashboard automatically pulls the latest discharge data from your Google Sheets every time the page loads. Data is analyzed to identify high-risk practitioners and discharge patterns.</p>
-                <p><strong>Risk Thresholds:</strong> Patient discharge >15% = High Risk • Practitioner discharge >10% = Review Required • Overall >20% = Critical</p>
-            </div>
-        </div>
+    <h1>🧪 Test Dashboard</h1>
+    <div class="test-box">
+        <h2>Static Content Test</h2>
+        <p>If you can see this blue box, the HTML and CSS are working!</p>
+    </div>
+    
+    <div id="jsTest" class="debug-box">
+        JavaScript Status: Loading...
+    </div>
+    
+    <div id="fetchTest" class="debug-box">
+        Google Sheets Fetch Test: Not started
+    </div>
+    
+    <div id="debugOutput" class="debug-box" style="height: 200px; overflow-y: auto;">
+        Debug Output Will Appear Here...
     </div>
 
     <script>
-        // Google Sheets CSV URL for discharge data
-        const DISCHARGE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9oDIgQ5APmcCORpmydY4Kxuwd2RPyLEG41QggNecWvPM_xbHBEcp14Pwj9lxkn9OxryuMq5SUFbsd/pub?gid=42669759&single=true&output=csv';
+        // Test 1: Basic JavaScript
+        document.getElementById('jsTest').innerHTML = 'JavaScript Status: ✅ WORKING!';
         
-        let charts = {};
-        let debugMessages = [];
-
-        // Debug logging function that shows on page
-        function debugLog(message) {
-            debugMessages.push(`${new Date().toLocaleTimeString()}: ${message}`);
+        // Test 2: Debug logging
+        function log(message) {
+            const output = document.getElementById('debugOutput');
+            output.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            output.scrollTop = output.scrollHeight;
             console.log(message);
-            
-            const debugElement = document.getElementById('debugLog');
-            if (debugElement) {
-                debugElement.textContent = debugMessages.slice(-20).join('\n'); // Show last 20 messages
-                debugElement.scrollTop = debugElement.scrollHeight;
-            }
         }
-
-        // Fetch discharge data from Google Sheets
-        async function fetchDischargeData() {
+        
+        log('🚀 Test dashboard started');
+        log('📍 Current URL: ' + window.location.href);
+        
+        // Test 3: Fetch your Google Sheets
+        async function testFetch() {
+            const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR9oDIgQ5APmcCORpmydY4Kxuwd2RPyLEG41QggNecWvPM_xbHBEcp14Pwj9lxkn9OxryuMq5SUFbsd/pub?gid=42669759&single=true&output=csv';
+            
+            document.getElementById('fetchTest').innerHTML = 'Google Sheets Fetch Test: ⏳ Testing...';
+            log('🌐 Testing direct fetch to Google Sheets...');
+            
             try {
-                debugLog('=== Starting data fetch ===');
-                debugLog('CSV URL: ' + DISCHARGE_CSV_URL.substring(0, 50) + '...');
+                const response = await fetch(csvUrl);
+                log('📡 Response status: ' + response.status);
+                log('📡 Response OK: ' + response.ok);
                 
-                // Try direct fetch first
-                try {
-                    debugLog('Trying direct fetch...');
-                    const directResponse = await fetch(DISCHARGE_CSV_URL);
-                    debugLog('Direct response status: ' + directResponse.status);
+                if (response.ok) {
+                    const text = await response.text();
+                    log('📊 Data received! Length: ' + text.length + ' characters');
+                    log('📊 First 200 chars: ' + text.substring(0, 200));
                     
-                    if (directResponse.ok) {
-                        const csvText = await directResponse.text();
-                        debugLog('Direct CSV fetch successful, length: ' + csvText.length);
-                        debugLog('First 100 chars: ' + csvText.substring(0, 100));
-                        return parseDischargeCSV(csvText);
-                    } else {
-                        debugLog('Direct fetch failed with status: ' + directResponse.status);
+                    // Parse first few lines
+                    const lines = text.split('\n');
+                    log('📋 Total lines: ' + lines.length);
+                    for (let i = 0; i < Math.min(5, lines.length); i++) {
+                        log('📋 Line ' + (i+1) + ': ' + lines[i].substring(0, 100) + '...');
                     }
-                } catch (directError) {
-                    debugLog('Direct fetch error: ' + directError.message);
-                }
-                
-                // Use CORS proxy as fallback
-                debugLog('Trying CORS proxy...');
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(DISCHARGE_CSV_URL)}`;
-                
-                const response = await fetch(proxyUrl);
-                debugLog('Proxy response status: ' + response.status);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                const csvText = data.contents;
-                
-                debugLog('Proxy CSV fetch successful, length: ' + csvText.length);
-                debugLog('First 100 chars: ' + csvText.substring(0, 100));
-                return parseDischargeCSV(csvText);
-                
-            } catch (error) {
-                debugLog('=== ERROR: All fetch methods failed ===');
-                debugLog('Error details: ' + error.message);
-                
-                // Show error to user
-                document.getElementById('dataSource').innerHTML = `
-                    ⚠️ <strong>Data Connection Failed</strong><br>
-                    Error: ${error.message}<br>
-                    Using demo data for testing. Check debug console above.
-                `;
-                document.getElementById('dataSource').style.background = 'rgba(239, 68, 68, 0.1)';
-                document.getElementById('dataSource').style.borderColor = '#ef4444';
-                document.getElementById('dataSource').style.color = '#fca5a5';
-                
-                // Return demo data with realistic names for medicinal cannabis clinic
-                debugLog('Using fallback demo data');
-                return [
-                    { name: 'Dr. Sarah Mitchell', patientDischarge: 12.5, practitionerDischarge: 8.2, overallDischarge: 20.7 },
-                    { name: 'Dr. James Wilson', patientDischarge: 18.3, practitionerDischarge: 5.1, overallDischarge: 23.4 },
-                    { name: 'Dr. Emily Chen', patientDischarge: 9.7, practitionerDischarge: 12.8, overallDischarge: 22.5 },
-                    { name: 'Dr. Michael Brown', patientDischarge: 15.2, practitionerDischarge: 7.3, overallDischarge: 22.5 },
-                    { name: 'Dr. Lisa Davis', patientDischarge: 6.8, practitionerDischarge: 4.2, overallDischarge: 11.0 },
-                    { name: 'Dr. Robert Taylor', patientDischarge: 21.1, practitionerDischarge: 3.9, overallDischarge: 25.0 },
-                    { name: 'Dr. Amanda White', patientDischarge: 4.2, practitionerDischarge: 6.1, overallDischarge: 10.3 }
-                ];
-            }
-        }
-
-        // Parse CSV data for discharge information
-        function parseDischargeCSV(csvText) {
-            debugLog('=== Starting CSV Parse ===');
-            debugLog('Raw CSV length: ' + csvText.length);
-            debugLog('First 300 characters: ' + csvText.substring(0, 300));
-            
-            const lines = csvText.trim().split('\n');
-            debugLog('Total lines found: ' + lines.length);
-            
-            // Show first few lines for debugging
-            debugLog('=== First 5 lines ===');
-            for (let i = 0; i < Math.min(5, lines.length); i++) {
-                debugLog(`Line ${i}: ${lines[i]}`);
-            }
-            
-            const practitioners = [];
-            
-            // Process rows 3-18 for data (array indices 2-17)
-            debugLog('=== Processing data rows (3-18) ===');
-            for (let i = 2; i < Math.min(18, lines.length); i++) {
-                const line = lines[i];
-                debugLog(`Processing line ${i + 1}: ${line.substring(0, 100)}...`);
-                
-                if (!line || line.trim() === '') {
-                    debugLog(`Line ${i + 1} is empty, skipping`);
-                    continue;
-                }
-                
-                // Split by comma but handle quoted commas
-                const columns = [];
-                let current = '';
-                let inQuotes = false;
-                
-                for (let j = 0; j < line.length; j++) {
-                    const char = line[j];
-                    if (char === '"') {
-                        inQuotes = !inQuotes;
-                    } else if (char === ',' && !inQuotes) {
-                        columns.push(current.trim());
-                        current = '';
-                    } else {
-                        current += char;
-                    }
-                }
-                columns.push(current.trim()); // Add the last column
-                
-                debugLog(`Line ${i + 1} split into ${columns.length} columns`);
-                
-                // Extract columns H, J, L, N (indices 7, 9, 11, 13)
-                const name = columns[7] ? columns[7].replace(/"/g, '').trim() : '';
-                const patientDischargeRaw = columns[9] ? columns[9].replace(/"/g, '').trim() : '';
-                const practitionerDischargeRaw = columns[11] ? columns[11].replace(/"/g, '').trim() : '';
-                const overallDischargeRaw = columns[13] ? columns[13].replace(/"/g, '').trim() : '';
-                
-                debugLog(`Extracted: Name="${name}", Patient="${patientDischargeRaw}", Practitioner="${practitionerDischargeRaw}", Overall="${overallDischargeRaw}"`);
-                
-                const patientDischarge = parseFloat(patientDischargeRaw) || 0;
-                const practitionerDischarge = parseFloat(practitionerDischargeRaw) || 0;
-                const overallDischarge = parseFloat(overallDischargeRaw) || 0;
-                
-                if (name && name !== '' && !name.toLowerCase().includes('total') && !name.toLowerCase().includes('practitioner name')) {
-                    const practitioner = {
-                        name: name,
-                        patientDischarge: patientDischarge,
-                        practitionerDischarge: practitionerDischarge,
-                        overallDischarge: overallDischarge
-                    };
-                    practitioners.push(practitioner);
-                    debugLog(`Added practitioner: ${name} - Patient:${patientDischarge}% Practitioner:${practitionerDischarge}% Overall:${overallDischarge}%`);
+                    
+                    document.getElementById('fetchTest').innerHTML = 'Google Sheets Fetch Test: ✅ SUCCESS!';
                 } else {
-                    debugLog(`Skipped line ${i + 1}: name="${name}" (empty or header/total)`);
+                    log('❌ Fetch failed with status: ' + response.status);
+                    document.getElementById('fetchTest').innerHTML = 'Google Sheets Fetch Test: ❌ Failed (Status: ' + response.status + ')';
+                }
+            } catch (error) {
+                log('❌ Fetch error: ' + error.message);
+                document.getElementById('fetchTest').innerHTML = 'Google Sheets Fetch Test: ❌ Error: ' + error.message;
+                
+                // Try CORS proxy
+                log('🔄 Trying CORS proxy...');
+                try {
+                    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(csvUrl);
+                    const proxyResponse = await fetch(proxyUrl);
+                    const proxyData = await proxyResponse.json();
+                    log('📡 Proxy response received');
+                    log('📊 Proxy data length: ' + proxyData.contents.length);
+                    log('📊 First 200 chars: ' + proxyData.contents.substring(0, 200));
+                    document.getElementById('fetchTest').innerHTML = 'Google Sheets Fetch Test: ✅ SUCCESS via proxy!';
+                } catch (proxyError) {
+                    log('❌ Proxy also failed: ' + proxyError.message);
                 }
             }
-            
-            debugLog('=== Final Result ===');
-            debugLog('Total practitioners found: ' + practitioners.length);
-            
-            return practitioners;
         }
-
-        // Calculate risk level based on discharge rates
-        function calculateRiskLevel(patientRate, practitionerRate, overallRate) {
-            if (patientRate > 15 || overallRate > 20) return 'critical';
-            if (patientRate > 10 || practitionerRate > 10 || overallRate > 15) return 'warning';
-            return 'good';
-        }
-
-        // Get risk indicator HTML
-        function getRiskIndicator(rate, type = 'patient') {
-            let threshold = type === 'patient' ? 15 : type === 'practitioner' ? 10 : 20;
-            let warningThreshold = type === 'patient' ? 10 : type === 'practitioner' ? 7 : 15;
-            
-            if (rate > threshold) {
-                return '<span class="risk-high">High Risk</span>';
-            } else if (rate > warningThreshold) {
-                return '<span class="risk-medium">Medium Risk</span>';
-            } else {
-                return '<span class="risk-low">Low Risk</span>';
-            }
-        }
-
-        // Update dashboard with discharge data
-        function updateDashboard(data) {
-            // Update last updated time
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
-            
-            // Calculate metrics
-            const totalPractitioners = data.length;
-            const avgPatientDischarge = data.reduce((sum, p) => sum + p.patientDischarge, 0) / totalPractitioners;
-            const avgPractitionerDischarge = data.reduce((sum, p) => sum + p.practitionerDischarge, 0) / totalPractitioners;
-            const avgOverallDischarge = data.reduce((sum, p) => sum + p.overallDischarge, 0) / totalPractitioners;
-            
-            // Find highest risk and best performer
-            const highestRisk = data.reduce((max, p) => p.patientDischarge > max.patientDischarge ? p : max, data[0]);
-            const bestPerformer = data.reduce((min, p) => p.overallDischarge < min.overallDischarge ? p : min, data[0]);
-            
-            // Update metric cards
-            document.getElementById('totalPractitioners').textContent = totalPractitioners;
-            document.getElementById('avgPatientDischarge').textContent = `${avgPatientDischarge.toFixed(1)}%`;
-            document.getElementById('avgPractitionerDischarge').textContent = `${avgPractitionerDischarge.toFixed(1)}%`;
-            document.getElementById('overallDischarge').textContent = `${avgOverallDischarge.toFixed(1)}%`;
-            
-            document.getElementById('highestRiskName').textContent = highestRisk.name;
-            document.getElementById('highestRiskRate').textContent = `${highestRisk.patientDischarge.toFixed(1)}% patient discharge`;
-            
-            document.getElementById('bestPerformerName').textContent = bestPerformer.name;
-            document.getElementById('bestPerformerRate').textContent = `${bestPerformer.overallDischarge.toFixed(1)}% overall discharge`;
-            
-            // Update risk indicators
-            document.getElementById('patientRiskIndicator').innerHTML = getRiskIndicator(avgPatientDischarge, 'patient');
-            document.getElementById('practitionerRiskIndicator').innerHTML = getRiskIndicator(avgPractitionerDischarge, 'practitioner');
-            document.getElementById('overallRiskIndicator').innerHTML = getRiskIndicator(avgOverallDischarge, 'overall');
-            
-            // Check for high-risk practitioners and show alerts
-            const highRiskPractitioners = data.filter(p => p.patientDischarge > 15 || p.overallDischarge > 20);
-            if (highRiskPractitioners.length > 0) {
-                document.getElementById('alertSection').style.display = 'block';
-                const alertContent = document.getElementById('alertContent');
-                alertContent.innerHTML = highRiskPractitioners.map(p => 
-                    `<div class="alert-item">
-                        <strong>${p.name}</strong>: ${p.patientDischarge.toFixed(1)}% patient discharge, ${p.overallDischarge.toFixed(1)}% overall
-                    </div>`
-                ).join('');
-            }
-            
-            // Update table
-            updatePractitionersTable(data);
-            
-            // Update charts
-            createDischargeCharts(data);
-        }
-
-        // Update practitioners table
-        function updatePractitionersTable(data) {
-            const tbody = document.getElementById('practitionersTable');
-            tbody.innerHTML = '';
-            
-            // Sort by patient discharge rate (highest first)
-            const sortedData = [...data].sort((a, b) => b.patientDischarge - a.patientDischarge);
-            
-            sortedData.forEach(practitioner => {
-                const riskLevel = calculateRiskLevel(
-                    practitioner.patientDischarge, 
-                    practitioner.practitionerDischarge, 
-                    practitioner.overallDischarge
-                );
-                
-                let statusClass = 'status-good';
-                let statusText = 'Monitor';
-                let actionText = 'Continue monitoring';
-                
-                if (riskLevel === 'critical') {
-                    statusClass = 'status-critical';
-                    statusText = 'Critical';
-                    actionText = 'Immediate review';
-                } else if (riskLevel === 'warning') {
-                    statusClass = 'status-warning';
-                    statusText = 'Warning';
-                    actionText = 'Schedule review';
-                }
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><strong>${practitioner.name}</strong></td>
-                    <td><strong>${practitioner.patientDischarge.toFixed(1)}%</strong></td>
-                    <td>${practitioner.practitionerDischarge.toFixed(1)}%</td>
-                    <td><strong>${practitioner.overallDischarge.toFixed(1)}%</strong></td>
-                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                    <td>${actionText}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        // Create discharge charts
-        function createDischargeCharts(data) {
-            if (typeof Chart === 'undefined') {
-                console.log('Chart.js not loaded yet, retrying...');
-                setTimeout(() => createDischargeCharts(data), 500);
-                return;
-            }
-
-            // Destroy existing charts
-            if (charts.discharge) charts.discharge.destroy();
-            if (charts.distribution) charts.distribution.destroy();
-
-            // Discharge rates chart
-            try {
-                const ctx1 = document.getElementById('dischargeChart');
-                charts.discharge = new Chart(ctx1.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: data.map(p => p.name),
-                        datasets: [
-                            {
-                                label: 'Patient Discharge %',
-                                data: data.map(p => p.patientDischarge),
-                                backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                                borderColor: '#ef4444',
-                                borderWidth: 2
-                            },
-                            {
-                                label: 'Practitioner Discharge %',
-                                data: data.map(p => p.practitionerDischarge),
-                                backgroundColor: 'rgba(245, 158, 11, 0.8)',
-                                borderColor: '#f59e0b',
-                                borderWidth: 2
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                labels: { color: '#e2e8f0' }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                ticks: { color: '#cbd5e1' },
-                                grid: { color: '#475569' }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                ticks: { color: '#cbd5e1' },
-                                grid: { color: '#475569' }
-                            }
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('Error creating discharge chart:', error);
-            }
-
-            // Distribution chart
-            try {
-                const totalPatientDischarges = data.reduce((sum, p) => sum + p.patientDischarge, 0);
-                const totalPractitionerDischarges = data.reduce((sum, p) => sum + p.practitionerDischarge, 0);
-
-                const ctx2 = document.getElementById('distributionChart');
-                charts.distribution = new Chart(ctx2.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Patient Initiated', 'Practitioner Initiated'],
-                        datasets: [{
-                            data: [totalPatientDischarges, totalPractitionerDischarges],
-                            backgroundColor: ['#ef4444', '#f59e0b'],
-                            borderWidth: 3,
-                            borderColor: '#1e293b'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    color: '#e2e8f0',
-                                    padding: 20
-                                }
-                            }
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('Error creating distribution chart:', error);
-            }
-        }
-
-        // Initialize dashboard
-        async function initDashboard() {
-            try {
-                console.log('Initializing discharge dashboard...');
-                const data = await fetchDischargeData();
-                updateDashboard(data);
-                
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-                
-                console.log('Discharge dashboard loaded successfully!');
-            } catch (error) {
-                console.error('Error initializing dashboard:', error);
-                
-                // Use fallback data
-                const fallbackData = [
-                    { name: 'Dr. Smith', patientDischarge: 12.5, practitionerDischarge: 8.2, overallDischarge: 20.7 },
-                    { name: 'Dr. Johnson', patientDischarge: 18.3, practitionerDischarge: 5.1, overallDischarge: 23.4 },
-                    { name: 'Dr. Williams', patientDischarge: 9.7, practitionerDischarge: 12.8, overallDischarge: 22.5 },
-                    { name: 'Dr. Brown', patientDischarge: 15.2, practitionerDischarge: 7.3, overallDischarge: 22.5 },
-                    { name: 'Dr. Davis', patientDischarge: 6.8, practitionerDischarge: 4.2, overallDischarge: 11.0 }
-                ];
-                
-                updateDashboard(fallbackData);
-                document.getElementById('dataSource').innerHTML = '⚠️ Using demo data - Google Sheets connection failed';
-                document.getElementById('dataSource').style.background = 'rgba(245, 158, 11, 0.1)';
-                document.getElementById('dataSource').style.borderColor = '#f59e0b';
-                document.getElementById('dataSource').style.color = '#fbbf24';
-                
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-            }
-        }
-
-        // Start the dashboard when page loads
-        window.addEventListener('load', initDashboard);
+        
+        // Start tests
+        log('🧪 Starting fetch test in 2 seconds...');
+        setTimeout(testFetch, 2000);
+        
+        log('✅ Test dashboard loaded successfully');
     </script>
 </body>
 </html>
